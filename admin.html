@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Amber Beans in a Plate</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 50%, #fd79a8 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Fredoka', cursive;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+        }
+
+        .login-box {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h1 {
+            color: #6c5ce7;
+            margin-bottom: 1rem;
+        }
+
+        .login-box p {
+            color: #636e72;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #6c5ce7;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #dfe6e9;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #a29bfe;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #fd79a8, #a29bfe);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: 'Fredoka', cursive;
+            transition: transform 0.3s;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #55efc4, #00b894);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff7675, #d63031);
+        }
+
+        .error-message {
+            background: #ff7675;
+            color: white;
+            padding: 0.8rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            display: none;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header h1 {
+            color: #6c5ce7;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .section {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #6c5ce7;
+            margin-bottom: 1.5rem;
+        }
+
+        .products-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .product-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            align-items: center;
+            transition: border-color 0.3s;
+        }
+
+        .product-item:hover {
+            border-color: #a29bfe;
+        }
+
+        .product-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-thumbnail.placeholder {
+            font-size: 2rem;
+        }
+
+        .product-info {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #2d3436;
+            font-size: 1.1rem;
+        }
+
+        .product-price {
+            color: #fd79a8;
+            font-weight: 700;
+            margin-top: 0.3rem;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #a29bfe 0%, #fd79a8 100%);
+            padding: 1.5rem 2rem;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: white;
+            margin: 0;
+        }
+
+        .close-modal {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s;
+        }
+
+        .close-modal:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .image-upload-area {
+            border: 3px dashed #dfe6e9;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .image-upload-area:hover {
+            border-color: #a29bfe;
+        }
+
+        .image-upload-area.has-image {
+            border-style: solid;
+            border-color: #55efc4;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-list {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .image-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #dfe6e9;
+        }
+
+        .image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff7675;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .success-message {
+            background: #55efc4;
+            color: #00b894;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                text-align: center;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-direction: column;
+            }
+
+            .product-item {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .product-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn-small {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <h1>🔒 Admin Login</h1>
+            <p>Enter your password to manage products</p>
+            <div class="error-message" id="loginError">Incorrect password!</div>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter admin password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+            <p style="margin-top: 2rem; font-size: 0.9rem; color: #b2bec3;">
+                Default password: <strong>admin123</strong><br>
+                <small>(You can change this in the code)</small>
+            </p>
+        </div>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-panel" id="adminPanel">
+        <div class="container">
+            <div class="header">
+                <h1>🛍️ Product Management</h1>
+                <div class="header-actions">
+                    <button class="btn btn-success" onclick="openAddModal()">+ Add New Product</button>
+                    <button class="btn btn-secondary" onclick="viewWebsite()">View Website</button>
+                    <button class="btn btn-secondary" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+            <div class="success-message" id="successMessage"></div>
+
+            <div class="section">
+                <h2>All Products (<span id="productCount">0</span>)</h2>
+                <div class="products-list" id="productsList">
+                    <!-- Products will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Product Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add New Product</h2>
+                <button class="close-modal" onclick="closeProductModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="saveProduct(event)">
+                    <div class="form-group">
+                        <label for="productName">Product Name *</label>
+                        <input type="text" id="productName" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="productPrice">Price (₹) *</label>
+                        <input type="number" id="productPrice" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product Images *</label>
+                        <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">📸</div>
+                            <p>Click to upload images</p>
+                            <p style="font-size: 0.9rem; color: #b2bec3;">You can upload multiple images</p>
+                        </div>
+                        <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                        <div class="image-list" id="imageList"></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Save Product</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Admin password - CHANGE THIS TO YOUR OWN PASSWORD!
+        const ADMIN_PASSWORD = "admin123";
+
+        // Current editing product
+        let editingProductId = null;
+        let currentImages = [];
+
+        // Login
+        function login(event) {
+            event.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadProducts();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('loginError').style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Logout
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('password').value = '';
+        }
+
+        // View website
+        function viewWebsite() {
+            window.open('index.html', '_blank');
+        }
+
+        // Load products
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('amberbeansProducts') || '[]');
+            const productsList = document.getElementById('productsList');
+            document.getElementById('productCount').textContent = products.length;
+            
+            if (products.length === 0) {
+                productsList.innerHTML = '<p style="text-align: center; color: #b2bec3; padding: 2rem;">No products yet. Add your first product!</p>';
+                return;
+            }
+
+            productsList.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <div class="product-thumbnail ${product.images && product.images.length === 0 ? 'placeholder' : ''}">
+                        ${product.images && product.images.length > 0 ? `<img src="${product.images[0]}" alt="${product.name}">` : '📦'}
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">₹${product.price}</div>
+                        <div style="font-size: 0.85rem; color: #b2bec3; margin-top: 0.3rem;">${product.images ? product.images.length : 0} image(s)</div>
+                    </div>
+                    <div class="product-actions">
+                        <button class="btn btn-secondary btn-small" onclick="editProduct(${product.id})">Edit</button>
+                        <button class="btn btn-danger btn-small" onclick="deleteProduct(${product.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open add modal
+        function openAddModal() {
+            editingProductId = null;
+            currentImages = [];
+            document.getElementById('modalTitle').textContent = 'Add New Product';
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('imageList').innerHTML = '';
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        // Edit product
+        function editProduct(id) {
+            const products = JSON.parse(localStorage.getItem('amberbeansProducts') || '[]');
+            const product = products.find(p => p.id === id);
+            
+            if (!product) return;
+            
+            editingProductId = id;
+            currentImages = product.images ? [...product.images] : [];
+            
+            document.getElementById('modalTitle').textContent = 'Edit Product';
+            document.getElementById('productName').value = product.name;
+            document.getElementById('productPrice').value = product.price;
+            
+            renderImageList();
+            document.getElementById('productModal').style.display = 'block';
+        }
+
+        // Handle image upload
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            
+            for (let file of files) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentImages.push(e.target.result);
+                    renderImageList();
+                };
+                reader.readAsDataURL(file);
+            }
+            
+            event.target.value = '';
+        }
+
+        // Render image list
+        function renderImageList() {
+            const imageList = document.getElementById('imageList');
+            imageList.innerHTML = currentImages.map((img, index) => `
+                <div class="image-item">
+                    <img src="${img}" alt="Product image">
+                    <button type="button" class="remove-image" onclick="removeImage(${index})">×</button>
+                </div>
+            `).join('');
+        }
+
+        // Remove image
+        function removeImage(index) {
+            currentImages.splice(index, 1);
+            renderImageList();
+        }
+
+        // Save product
+        function saveProduct(event) {
+            event.preventDefault();
+            
+            const name = document.getElementById('productName').value;
+            const price = parseInt(document.getElementById('productPrice').value);
+            
+            if (currentImages.length === 0) {
+                alert('Please add at least one image!');
+                return;
+            }
+            
+            let products = JSON.parse(localStorage.getItem('amberbeansProducts') || '[]');
+            
+            if (editingProductId) {
+                // Edit existing product
+                const index = products.findIndex(p => p.id === editingProductId);
+                if (index !== -1) {
+                    products[index] = {
+                        ...products[index],
+                        name,
+                        price,
+                        images: currentImages
+                    };
+                }
+            } else {
+                // Add new product
+                const newId = products.length > 0 ? Math.max(...products.map(p => p.id)) + 1 : 1;
+                products.push({
+                    id: newId,
+                    name,
+                    price,
+                    images: currentImages
+                });
+            }
+            
+            localStorage.setItem('amberbeansProducts', JSON.stringify(products));
+            
+            closeProductModal();
+            loadProducts();
+            showSuccess(editingProductId ? 'Product updated successfully! Changes will appear on the website.' : 'Product added successfully! It will appear on the website.');
+        }
+
+        // Delete product
+        function deleteProduct(id) {
+            if (!confirm('Are you sure you want to delete this product?')) return;
+            
+            let products = JSON.parse(localStorage.getItem('amberbeansProducts') || '[]');
+            products = products.filter(p => p.id !== id);
+            localStorage.setItem('amberbeansProducts', JSON.stringify(products));
+            
+            loadProducts();
+            showSuccess('Product deleted successfully!');
+        }
+
+        // Close product modal
+        function closeProductModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successEl = document.getElementById('successMessage');
+            successEl.textContent = message;
+            successEl.style.display = 'block';
+            setTimeout(() => {
+                successEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) {
+                closeProductModal();
+            }
+        }
+    </script>
+</body>
+</html>
